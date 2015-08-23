@@ -1,6 +1,6 @@
 # Introduction
 
-Dockerfile to build Hyper [Estraier](http://fallabs.com/hyperestraier/) container image.
+Dockerfile to build [Hyper Estraier](http://fallabs.com/hyperestraier/) container image.
 
 ## Version
 
