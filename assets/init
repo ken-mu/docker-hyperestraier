@@ -1,0 +1,31 @@
+#!/bin/bash
+set -e
+
+HOME_DIR="/home/hyperestraier"
+DATA_DIR="${HOME_DIR}/data"
+SRC_DIR="${HOME_DIR}/src"
+LOG_DIR="${HOME_DIR}/log/hyperestraier"
+INTERVAL_MIN=${INTERVAL_MIN:-5}
+
+mkdir -m 0755 -p ${DATA_DIR}
+chown -R hyperestraier:hyperestraier ${DATA_DIR}
+mkdir -m 0755 -p ${SRC_DIR}
+chown -R hyperestraier:hyperestraier ${SRC_DIR}
+mkdir -m 0755 -p ${LOG_DIR}/supervisor
+chown -R root:root ${LOG_DIR}/supervisor
+
+# Regist HyperEstraier cron file
+if [ -f ${SRC_DIR}/hyperestraier.cron ]; then
+	echo "*/${INTERVAL_MIN} * * * * /bin/sh ${SRC_DIR}/hyperestraier.cron" >> /tmp/hyperestraier.cron
+	#echo "*/5 * * * * echo test >> /home/hyperestraier/data/cron.test" >> /tmp/hyperestraier.cron
+	crontab -u hyperestraier /tmp/hyperestraier.cron
+	rm -rf /tmp/hyperestraier.cron
+else
+	echo "Error: Cannot find cron file. Insert hyperestraier.cron to SRC_DIR."
+	exit 1;
+fi
+
+# start supervisord
+exec /usr/bin/supervisord -n -c /etc/supervisor/supervisord.conf
+
+exit 0

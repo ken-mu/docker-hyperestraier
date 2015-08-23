@@ -1,0 +1,50 @@
+#!/bin/bash
+set -e
+
+HOME_DIR="/home/hyperestraier"
+SRC_DIR="${HOME_DIR}/src"
+LOG_DIR="${HOME_DIR}/log/hyperestraier"
+
+# rebuild apt cache
+apt-get update
+
+adduser --disabled-login --gecos 'HyperEstraier' hyperestraier
+passwd -d hyperestraier
+
+# set PATH for hyperestraier cron jobs
+cat > /tmp/cron.hyperestraier <<EOF
+PATH=/usr/local/sbin:/usr/local/bin:/sbin:/bin:/usr/sbin:/usr/bin
+EOF
+crontab -u hyperestraier /tmp/cron.hyperestraier
+rm -rf /tmp/cron.hyperestraier
+
+# move supervisord.log file to ${LOG_DIR}/supervisor/
+sed 's|^logfile=.*|logfile='"${LOG_DIR}"'/supervisor/supervisord.log ;|' -i /etc/supervisor/supervisord.conf
+
+# configure supervisord log rotation
+cat > /etc/logrotate.d/supervisord <<EOF
+${LOG_DIR}/supervisor/*.log {
+  weekly
+  missingok
+  rotate 52
+  compress
+  delaycompress
+  notifempty
+  copytruncate
+}
+EOF
+
+# configure supervisord to start crond
+cat > /etc/supervisor/conf.d/cron.conf <<EOF
+[program:cron]
+priority=20
+directory=/tmp
+command=/usr/sbin/cron -f
+user=root
+autostart=true
+autorestart=true
+stdout_logfile=${LOG_DIR}/supervisor/%(program_name)s.log
+stderr_logfile=${LOG_DIR}/supervisor/%(program_name)s.log
+EOF
+
+
