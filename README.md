@@ -47,4 +47,4 @@ docker run --name=hyperestraier -d -v /opt/hyperestraier/data:/home/hyperestraie
 
 # Available Configuration Parameters
 
-- **INTERVAL_MIN**: 
+- **INTERVAL_MIN**: Bash execution interval[minnute]. 
