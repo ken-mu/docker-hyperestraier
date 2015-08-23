@@ -16,8 +16,7 @@ chown -R root:root ${LOG_DIR}/supervisor
 
 # Regist HyperEstraier cron file
 if [ -f ${SRC_DIR}/hyperestraier.cron ]; then
-	echo "*/${INTERVAL_MIN} * * * * /bin/sh ${SRC_DIR}/hyperestraier.cron" >> /tmp/hyperestraier.cron
-	#echo "*/5 * * * * echo test >> /home/hyperestraier/data/cron.test" >> /tmp/hyperestraier.cron
+	echo "*/${INTERVAL_MIN} * * * * /bin/bash ${SRC_DIR}/hyperestraier.cron" >> /tmp/hyperestraier.cron
 	crontab -u hyperestraier /tmp/hyperestraier.cron
 	rm -rf /tmp/hyperestraier.cron
 else
